@@ -10,6 +10,8 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -20,9 +22,9 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
     Conroller controller;
     public static DB.DbQueries db = DB.DbQueries.getInstance();
     
-    HashMap<Integer, User> clients =new HashMap<>();
+    HashMap<Integer, ClientInterface> clients =new HashMap<>();
     
-    HashMap<String, Group> Groups =new HashMap<>();
+    HashMap<String, Group> groups =new HashMap<>();
 
     public Model(Conroller controller) throws RemoteException {
         this.controller = controller;
@@ -67,37 +69,67 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
 
     @Override
     public void registerUser(int id, ClientInterface client)throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        clients.put(id, client);
     }
 
     @Override
     public void unRegisterUser(int id, ClientInterface client)throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if(clients.containsKey(id)){
+            clients.remove(id);
+        }
     }
 
     @Override
     public void sendToUser(Massage msg, int fromId, int toId)throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        clients.get(toId).recieve(msg, db.getUserData(fromId));
     }
 
     @Override
     public void notifyChangeStatus(User user, String status)throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ArrayList<User> friends = db.getFriends(user.getId());
+        friends.forEach((f) -> {
+            if(clients.containsKey(f.getId())){
+                try {
+                    clients.get(f.getId()).notifyChangeStatus(user, status);
+                } catch (RemoteException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
     public void registerGroup(Group group)throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        groups.put(group.name, group);
     }
 
     @Override
     public void unRegisterGroup(User user, Group group)throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if(groups.containsKey(group.name)){
+            Group g = groups.get(group.name);
+            g.members.remove(user);
+            if(g.members.isEmpty()){
+                groups.remove(group.name);
+            }
+            
+        }
     }
 
     @Override
     public void sendToGroup(Massage msg, Group group)throws RemoteException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if(groups.containsKey(group.name)){
+            Group g = groups.get(group.name);
+            g.members.forEach((t) -> {
+                if(clients.containsKey(t.getId())){
+                    try {
+                        clients.get(t.getId()).recieveFromGroup(msg, group);
+                    } catch (RemoteException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+            
+        }
     }
 
 }

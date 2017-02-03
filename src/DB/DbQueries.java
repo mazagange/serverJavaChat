@@ -80,6 +80,24 @@ public class DbQueries implements DbInt{
 		}
        return user;
    }
+   public User getUserData(int id){
+            User user = null;
+       try {
+		PreparedStatement select=con.prepareStatement("select * from user where id = ?");
+                select.setInt(1, id);
+                ResultSet rs= select.executeQuery();
+		while(rs.next()){
+			
+                    user = new User(rs.getInt("id"), rs.getString("username"), rs.getString("email"), rs.getString("password"), rs.getString("country"), rs.getString("birthdate"), rs.getString("status"), rs.getString("gender"), rs.getString("onlinestatus"));
+			
+		}
+		rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+       return user;
+   }
    @Override
    public int insertUser(User bean){
 		int result=0;
