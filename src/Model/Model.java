@@ -66,37 +66,37 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
     }
 
     @Override
-    public void registerUser(int id, ClientInterface client) {
+    public void registerUser(int id, ClientInterface client)throws RemoteException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void unRegisterUser(int id, ClientInterface client) {
+    public void unRegisterUser(int id, ClientInterface client)throws RemoteException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void sendToUser(Massage msg, int fromId, int toId) {
+    public void sendToUser(Massage msg, int fromId, int toId)throws RemoteException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void notifyChangeStatus(User user, String status) {
+    public void notifyChangeStatus(User user, String status)throws RemoteException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void registerGroup(Group group) {
+    public void registerGroup(Group group)throws RemoteException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void unRegisterGroup(User user, Group group) {
+    public void unRegisterGroup(User user, Group group)throws RemoteException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void sendToGroup(Massage msg, Group group) {
+    public void sendToGroup(Massage msg, Group group)throws RemoteException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
