@@ -1,0 +1,34 @@
+package view;
+
+import controller.Conroller;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+public class ServerProject extends Application {
+
+    Conroller controller;
+
+    public ServerProject() {
+
+    }
+
+    @Override
+    public void init() throws Exception {
+        controller = new Conroller(this);
+        System.out.println("view");
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
+
+        Scene scene = new Scene(root);
+
+        stage.setScene(scene);
+        stage.show();
+    }
+
+}
