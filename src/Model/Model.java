@@ -81,7 +81,9 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
 
     @Override
     public void sendToUser(Massage msg, int fromId, int toId)throws RemoteException {
-        clients.get(toId).recieve(msg, db.getUserData(fromId));
+        if(clients.containsKey(toId)){
+            clients.get(toId).recieve(msg, db.getUserData(fromId));
+        }
     }
 
     @Override
