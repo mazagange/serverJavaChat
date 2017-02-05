@@ -195,7 +195,33 @@ public class DbQueries implements DbInt{
                 "  on user.id = friendship.user_id or user.id = friendship.friend_id" +
                 " join user peoplef" +
                 "  on (peoplef.id = friendship.user_id and peoplef.id <> user.id) or (peoplef.id = friendship.friend_id and peoplef.id <> user.id)" +
-                " WHERE user.id =?");   
+                " WHERE user.id =? AND friendship.status = 1");   
+                select.setInt(1, id);
+                ResultSet rs= select.executeQuery();
+		while(rs.next()){
+			
+                    friends.add(new User(rs.getInt("id"), rs.getString("username"), rs.getString("email"), rs.getString("password"), rs.getString("country"), rs.getString("birthdate"), rs.getString("status"), rs.getString("gender"), rs.getString("onlinestatus")));
+			
+		}
+		rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+       return friends;
+    }
+    
+    public ArrayList<User> getFriendsRequests(int id) {
+        ArrayList<User> friends = new ArrayList<User>();
+       try {
+		PreparedStatement select=con.prepareStatement("select peoplef.id   as id,peoplef.username as username," +
+                "peoplef.email as email,peoplef.password as password,peoplef.birthdate as birthdate," +
+                "peoplef.status as status,peoplef.country as country,peoplef.gender as gender,peoplef.onlinestatus as onlinestatus" +
+                "  from user join friendship" +
+                "  on user.id = friendship.user_id or user.id = friendship.friend_id" +
+                " join user peoplef" +
+                "  on (peoplef.id = friendship.user_id and peoplef.id <> user.id) or (peoplef.id = friendship.friend_id and peoplef.id <> user.id)" +
+                " WHERE user.id =? AND friendship.status = 0");   
                 select.setInt(1, id);
                 ResultSet rs= select.executeQuery();
 		while(rs.next()){
@@ -231,10 +257,10 @@ public class DbQueries implements DbInt{
     }
 
     @Override
-    public void acceptFriend(int id, int friendId) {
+    public void acceptFriend(int friendId, int id) {
             try 
             {
-                PreparedStatement accept=con.prepareStatement("update friendship set status='1' where id=? and friend_id=?");
+                PreparedStatement accept=con.prepareStatement("update friendship set status='1' where user_id=? and friend_id=?");
                 accept.setInt(1, id);
                 accept.setInt(2, friendId);
                 
@@ -247,11 +273,11 @@ public class DbQueries implements DbInt{
     }
 
     @Override
-    public void blockFriend(int id, int friendId) {
+    public void blockFriend(int friendId, int id) {
         
             try 
             {
-                PreparedStatement block=con.prepareStatement("update friendship set status='2' where id=? and friend_id=?");
+                PreparedStatement block=con.prepareStatement("update friendship set status='2' where user_id=? and friend_id=?");
                 block.setInt(1, id);
                 block.setInt(2, friendId);
                 
@@ -261,6 +287,20 @@ public class DbQueries implements DbInt{
             {
                 ex.printStackTrace();
             }
+    }
+
+    public void refuseFriend(int FriendId, int id) {
+        try {
+		PreparedStatement delete =con.prepareStatement("DELETE FROM friendship where user_id=? and friend_id=?");
+		
+		delete.setInt(1, id);
+		
+		delete.setInt(2, FriendId);
+		delete.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
    
    

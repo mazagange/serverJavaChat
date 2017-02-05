@@ -66,6 +66,11 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
     public ArrayList<User> getFriends(int id) throws RemoteException {
         return db.getFriends(id);
     }
+    
+    @Override
+    public ArrayList<User> getFriendsRequests(int id) throws RemoteException {
+        return db.getFriendsRequests(id);
+    }
 
     @Override
     public void registerUser(int id, ClientInterface client)throws RemoteException {
@@ -138,6 +143,26 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
     public void addFriend(int id,String emailOfFriend,String Cat) throws RemoteException {
         User friend = db.getUserData(emailOfFriend);
         db.addFriend(id, friend.getId(), Cat);
+        ArrayList<User> friends = db.getFriends(id);
+        friends.forEach((f) -> {
+            if(clients.containsKey(f.getId())){
+                try {
+                    clients.get(f.getId()).checkForRequests();
+                } catch (RemoteException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void acceptFriend(int id, int friendId) throws RemoteException {
+        db.acceptFriend(id, friendId);
+    }
+
+    @Override
+    public void refuseFriend(int id, int FriendId)throws RemoteException {
+        db.refuseFriend(id,FriendId);
     }
 
 }
