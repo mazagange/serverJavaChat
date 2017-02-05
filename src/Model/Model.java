@@ -134,4 +134,10 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
         }
     }
 
+    @Override
+    public void addFriend(int id,String emailOfFriend,String Cat) throws RemoteException {
+        User friend = db.getUserData(emailOfFriend);
+        db.addFriend(id, friend.getId(), Cat);
+    }
+
 }
