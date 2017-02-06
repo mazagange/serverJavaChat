@@ -5,7 +5,7 @@
  */
 package Model;
 
-import controller.Conroller;
+import controller.Controller;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -19,14 +19,14 @@ import java.util.logging.Logger;
  */
 public class Model extends UnicastRemoteObject implements ServerInterface {
 
-    Conroller controller;
+    Controller controller;
     public static DB.DbQueries db = DB.DbQueries.getInstance();
     
     HashMap<Integer, ClientInterface> clients =new HashMap<>();
     
     HashMap<String, Group> groups =new HashMap<>();
 
-    public Model(Conroller controller) throws RemoteException {
+    public Model(Controller controller) throws RemoteException {
         this.controller = controller;
         System.out.println("model");
     }
@@ -75,6 +75,17 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
     @Override
     public void registerUser(int id, ClientInterface client)throws RemoteException {
         clients.put(id, client);
+        User user = db.getUserData(id);
+        ArrayList<User> friends = db.getFriends(id);
+        friends.forEach((f) -> {
+            if(clients.containsKey(f.getId())){
+                try {
+                    clients.get(f.getId()).notifyOnline(user);
+                } catch (RemoteException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
@@ -82,6 +93,17 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
         if(clients.containsKey(id)){
             clients.remove(id);
         }
+        User user = db.getUserData(id);
+        ArrayList<User> friends = db.getFriends(id);
+        friends.forEach((f) -> {
+            if(clients.containsKey(f.getId())){
+                try {
+                    clients.get(f.getId()).notifyOffline(user);
+                } catch (RemoteException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
@@ -163,6 +185,22 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
     @Override
     public void refuseFriend(int id, int FriendId)throws RemoteException {
         db.refuseFriend(id,FriendId);
+    }
+     public int getOnlineUsers() {
+        return clients.size();
+    }
+
+    public int getOfflineUsers() {
+        return db.getNumberOfClients()-clients.size();
+
+    }
+
+    public int getBusyUsers() {
+        return db.getBusyUsers();
+    }
+
+    public int getAvailableUsers() {
+        return db.getAvailableUsers();
     }
 
 }

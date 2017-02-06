@@ -21,24 +21,24 @@ import view.ServerProject;
  *
  * @author BOSHA
  */
-public class Conroller {
+public class Controller {
 
     ServerProject serverProject;
     static Model model;
     DbQueries db;
     static Registry regisrty;
 
-    public Conroller(ServerProject aThis) {
+    public Controller(ServerProject aThis) {
         try {
             serverProject = aThis;
             model = new Model(this);
             db = DbQueries.getInstance();
-            regisrty = LocateRegistry.getRegistry();
+            regisrty = LocateRegistry.createRegistry(1099);
             regisrty.rebind("chatserver", model);
             System.out.println("control");
 
         } catch (RemoteException ex) {
-            Logger.getLogger(Conroller.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -48,7 +48,7 @@ public class Conroller {
             regisrty.rebind("chatserver", model);
             System.out.println("start");
         } catch (RemoteException ex) {
-            Logger.getLogger(Conroller.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
@@ -58,12 +58,29 @@ public class Conroller {
             regisrty.unbind("chatserver");
             System.out.println("stop");
         } catch (RemoteException | NotBoundException ex) {
-            Logger.getLogger(Conroller.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public static void main(String[] args) {
         Application.launch(ServerProject.class, args);
+    }
+    //get online users
+    public int getOnlineUsers() {
+        return model.getOnlineUsers();
+    }
+
+    //get offline users
+    public int getOfflineUsers() {
+        return model.getOfflineUsers();
+    }
+
+    public int getAvailableUsers() {
+        return model.getAvailableUsers();
+    }
+
+    public int getBusyUsers() {
+        return model.getBusyUsers();
     }
 
 }

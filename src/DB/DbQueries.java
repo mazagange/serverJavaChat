@@ -13,6 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import Model.User;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -301,6 +303,49 @@ public class DbQueries implements DbInt{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+    }
+    
+    public int getNumberOfClients() {
+        int count = 0;
+        try {
+            PreparedStatement st = con.prepareStatement("select count(*) from user");
+            ResultSet rs = st.executeQuery();
+            rs.next();
+            count = rs.getInt(1);
+
+        } catch (SQLException ex) {
+            Logger.getLogger(DbQueries.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return count;
+
+    }
+
+    public int getBusyUsers() {
+        int count = 0;
+        try {
+            PreparedStatement st = con.prepareStatement("select count(*) from user where status=?");
+            st.setString(1, "busy");
+            ResultSet rs = st.executeQuery();
+            rs.next();
+            count = rs.getInt(1);
+        } catch (SQLException ex) {
+            Logger.getLogger(DbQueries.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return count;
+    }
+
+    public int getAvailableUsers() {
+        int count = 0;
+        try {
+            PreparedStatement st = con.prepareStatement("select count(*) from user where status=?");
+            st.setString(1, "available");
+            ResultSet rs = st.executeQuery();
+            rs.next();
+            count = rs.getInt(1);
+        } catch (SQLException ex) {
+            Logger.getLogger(DbQueries.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return count;
     }
    
    
