@@ -57,6 +57,7 @@ public class Controller {
         try {
             regisrty.unbind("chatserver");
             System.out.println("stop");
+            model.goOffAllClientsAndClear();
         } catch (RemoteException | NotBoundException ex) {
             Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -74,6 +74,10 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
 
     @Override
     public void registerUser(int id, ClientInterface client)throws RemoteException {
+        if(clients.containsKey(id)){
+            clients.get(id).goOff("you are signed in from another location");
+            clients.remove(id);
+        }
         clients.put(id, client);
         User user = db.getUserData(id);
         ArrayList<User> friends = db.getFriends(id);
@@ -84,6 +88,14 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
                 } catch (RemoteException ex) {
                     ex.printStackTrace();
                 }
+            }
+        });
+        ArrayList<OfflineMsg> offlineMsg = db.getOfflineMsg(id);
+        offlineMsg.forEach((m) -> {
+            try {
+                client.recieve(new Massage(m.getContent(), m.getColor(), m.getFont()), db.getUserData(m.getFrom()));
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
             }
         });
     }
@@ -110,6 +122,8 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
     public void sendToUser(Massage msg, int fromId, int toId)throws RemoteException {
         if(clients.containsKey(toId)){
             clients.get(toId).recieve(msg, db.getUserData(fromId));
+        }else{
+            db.insertMsg(msg, fromId, toId);
         }
     }
 
@@ -202,5 +216,19 @@ public class Model extends UnicastRemoteObject implements ServerInterface {
     public int getAvailableUsers() {
         return db.getAvailableUsers();
     }
+
+    public void goOffAllClientsAndClear() {
+        clients.forEach((t, u) -> {
+            try {
+                u.goOff("server is down");
+                
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+            }
+        });
+        clients.clear();
+        groups.clear();
+    }
+    
 
 }

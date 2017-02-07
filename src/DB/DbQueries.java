@@ -6,6 +6,10 @@
 package DB;
 
 
+import Model.Massage;
+import Model.OfflineMsg;
+import Model.TextColor;
+import Model.TextFont;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -347,7 +351,51 @@ public class DbQueries implements DbInt{
         }
         return count;
     }
+    
+    
+   public int insertMsg(Massage msg,int from,int to){
+		int result=0;
+		
+		try {
+		 PreparedStatement insert =	con.prepareStatement("insert into offlinemsg(fromId,toId,msg,msgFont,msgColorR,msgColorG,msgColorB) values(?,?,?,?,?,?,?)");
+		insert.setInt(1, from);
+		insert.setInt(2, to);
+		insert.setString(3, msg.getContent());
+		insert.setDouble(4, msg.getFont().getSize());
+		insert.setDouble(5, msg.getColor().getRed());
+		insert.setDouble(6, msg.getColor().getGreen());
+		insert.setDouble(7, msg.getColor().getBlue());
+		
+		result = insert.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
+		
+	}
    
+   public ArrayList<OfflineMsg> getOfflineMsg(int id){
+             ArrayList<OfflineMsg> msgs = new ArrayList<>();
+       try {
+		PreparedStatement select=con.prepareStatement("select * from offlinemsg where toId = ?",ResultSet.TYPE_FORWARD_ONLY,
+        ResultSet.CONCUR_UPDATABLE);
+                select.setInt(1, id);
+                ResultSet rs= select.executeQuery();
+		while(rs.next()){
+			
+                    OfflineMsg msg = new OfflineMsg(rs.getString("msg"), new TextColor(rs.getDouble("msgColorR"), rs.getDouble("msgColorG"), rs.getDouble("msgColorB")),new TextFont(rs.getDouble("msgFont")),rs.getInt("fromId"),rs.getInt("toId"));
+                    msgs.add(msg);
+                    rs.deleteRow();
+		}
+		rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+       return msgs;
+   }
    
     
 }
